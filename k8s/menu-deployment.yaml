@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: menu-service
-          image: menu-service:latest
-          imagePullPolicy: Never
+          image: nima0d80/menu-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000
