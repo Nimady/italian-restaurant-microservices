@@ -12,6 +12,7 @@ spec:
       labels:
         app: order-service
     spec:
+      serviceAccountName: restaurant-app-sa
       containers:
         - name: order-service
           image: nima0d80/order-service:latest

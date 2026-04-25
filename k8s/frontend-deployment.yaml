@@ -12,6 +12,7 @@ spec:
       labels:
         app: restaurant-frontend
     spec:
+      serviceAccountName: restaurant-app-sa
       containers:
         - name: restaurant-frontend
           image: nima0d80/restaurant-frontend:latest

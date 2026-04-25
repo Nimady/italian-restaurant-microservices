@@ -12,6 +12,7 @@ spec:
       labels:
         app: menu-service
     spec:
+      serviceAccountName: restaurant-app-sa
       containers:
         - name: menu-service
           image: nima0d80/menu-service:latest
