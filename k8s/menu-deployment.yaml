@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: menu-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: menu-service
+  template:
+    metadata:
+      labels:
+        app: menu-service
+    spec:
+      containers:
+        - name: menu-service
+          image: menu-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000

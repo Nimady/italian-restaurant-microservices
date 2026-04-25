@@ -1,0 +1,18 @@
+# Python
+venv/
+menu-service/venv/
+order-service/venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+
+# VS Code
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
