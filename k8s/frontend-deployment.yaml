@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: restaurant-frontend
+  template:
+    metadata:
+      labels:
+        app: restaurant-frontend
+    spec:
+      containers:
+        - name: restaurant-frontend
+          image: nima0d80/restaurant-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80

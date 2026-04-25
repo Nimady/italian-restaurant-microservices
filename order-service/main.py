@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import requests
 
 from sqlalchemy import create_engine, Column, Integer, String, Float
@@ -38,21 +38,53 @@ Base.metadata.create_all(bind=engine)
 class Order(BaseModel):
     customer_number: int
     items: List[str]
-    total: float
 
 
 class OrderStatus(BaseModel):
     status: str
 
 
-def format_order(order):
+def clean_items(items: List[str]) -> List[str]:
+    return [item.strip() for item in items if item.strip()]
+
+
+def format_order(order: OrderDB):
     return {
         "id": order.id,
         "customer_number": order.customer_number,
-        "items": order.items.split(","),
+        "items": order.items.split(",") if order.items else [],
         "total": order.total,
         "status": order.status
     }
+
+
+def get_menu_prices():
+    response = requests.get("http://menu-service:8000/menu", timeout=5)
+    response.raise_for_status()
+
+    menu_data = response.json()["menu"]
+    prices = {}
+
+    for category_items in menu_data.values():
+        for item in category_items:
+            prices[item["name"].lower()] = item["price"]
+
+    return prices
+
+
+def calculate_total(items: List[str]) -> Optional[float]:
+    prices = get_menu_prices()
+    total = 0
+
+    for item_name in items:
+        key = item_name.lower()
+
+        if key not in prices:
+            return None
+
+        total += prices[key]
+
+    return round(total, 2)
 
 
 @app.get("/")
@@ -67,118 +99,170 @@ def home():
 @app.get("/orders")
 def get_orders():
     db = SessionLocal()
-    orders = db.query(OrderDB).all()
-    db.close()
-
-    return [format_order(order) for order in orders]
+    try:
+        orders = db.query(OrderDB).all()
+        return [format_order(order) for order in orders]
+    finally:
+        db.close()
 
 
 @app.get("/orders/{order_id}")
 def get_order(order_id: int):
     db = SessionLocal()
-    order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
-    db.close()
+    try:
+        order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
 
-    if order is None:
-        return {"error": "Order not found"}
+        if order is None:
+            return {"error": "Order not found"}
 
-    return format_order(order)
+        return format_order(order)
+    finally:
+        db.close()
 
 
 @app.post("/orders")
 def create_order(order: Order):
     db = SessionLocal()
+    try:
+        cleaned_items = clean_items(order.items)
 
-    new_order = OrderDB(
-        customer_number=order.customer_number,
-        items=",".join(order.items),
-        total=order.total,
-        status="received"
-    )
+        if not cleaned_items:
+            return {
+                "error": "Empty order",
+                "message": "The order must contain at least one item."
+            }
 
-    db.add(new_order)
-    db.commit()
-    db.refresh(new_order)
-    db.close()
+        try:
+            total = calculate_total(cleaned_items)
+        except Exception as e:
+            return {
+                "error": "Menu service unavailable",
+                "message": "Could not calculate total because menu-service is unavailable.",
+                "details": str(e)
+            }
 
-    return {
-        "message": "Order created",
-        "order": format_order(new_order)
-    }
+        if total is None:
+            return {
+                "error": "Invalid item",
+                "message": "One or more items do not exist in the menu."
+            }
+
+        new_order = OrderDB(
+            customer_number=order.customer_number,
+            items=",".join(cleaned_items),
+            total=total,
+            status="received"
+        )
+
+        db.add(new_order)
+        db.commit()
+        db.refresh(new_order)
+
+        return {
+            "message": "Order created",
+            "order": format_order(new_order)
+        }
+    finally:
+        db.close()
 
 
 @app.put("/orders/{order_id}")
 def update_order(order_id: int, updated_order: Order):
     db = SessionLocal()
+    try:
+        order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
 
-    order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
+        if order is None:
+            return {"error": "Order not found"}
 
-    if order is None:
+        cleaned_items = clean_items(updated_order.items)
+
+        if not cleaned_items:
+            return {
+                "error": "Empty order",
+                "message": "The order must contain at least one item."
+            }
+
+        try:
+            total = calculate_total(cleaned_items)
+        except Exception as e:
+            return {
+                "error": "Menu service unavailable",
+                "message": "Could not calculate total because menu-service is unavailable.",
+                "details": str(e)
+            }
+
+        if total is None:
+            return {
+                "error": "Invalid item",
+                "message": "One or more items do not exist in the menu."
+            }
+
+        order.customer_number = updated_order.customer_number
+        order.items = ",".join(cleaned_items)
+        order.total = total
+
+        db.commit()
+        db.refresh(order)
+
+        return {
+            "message": "Order updated",
+            "order": format_order(order)
+        }
+    finally:
         db.close()
-        return {"error": "Order not found"}
-
-    order.customer_number = updated_order.customer_number
-    order.items = ",".join(updated_order.items)
-    order.total = updated_order.total
-
-    db.commit()
-    db.refresh(order)
-    db.close()
-
-    return {
-        "message": "Order updated",
-        "order": format_order(order)
-    }
 
 
 @app.put("/orders/{order_id}/status")
 def update_order_status(order_id: int, order_status: OrderStatus):
     db = SessionLocal()
+    try:
+        order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
 
-    order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
+        if order is None:
+            return {"error": "Order not found"}
 
-    if order is None:
+        order.status = order_status.status
+
+        db.commit()
+        db.refresh(order)
+
+        return {
+            "message": "Order status updated",
+            "order": format_order(order)
+        }
+    finally:
         db.close()
-        return {"error": "Order not found"}
-
-    order.status = order_status.status
-
-    db.commit()
-    db.refresh(order)
-    db.close()
-
-    return {
-        "message": "Order status updated",
-        "order": format_order(order)
-    }
 
 
 @app.delete("/orders/{order_id}")
 def delete_order(order_id: int):
     db = SessionLocal()
+    try:
+        order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
 
-    order = db.query(OrderDB).filter(OrderDB.id == order_id).first()
+        if order is None:
+            return {"error": "Order not found"}
 
-    if order is None:
+        deleted_order = format_order(order)
+
+        db.delete(order)
+        db.commit()
+
+        return {
+            "message": "Order deleted",
+            "order": deleted_order
+        }
+    finally:
         db.close()
-        return {"error": "Order not found"}
-
-    deleted_order = format_order(order)
-
-    db.delete(order)
-    db.commit()
-    db.close()
-
-    return {
-        "message": "Order deleted",
-        "order": deleted_order
-    }
 
 
 @app.get("/menu-from-service")
 def get_menu_from_menu_service():
     try:
-        response = requests.get("http://menu-service:8000/menu")
+        response = requests.get("http://menu-service:8000/menu", timeout=5)
+        response.raise_for_status()
+
         return {
             "message": "Menu received from menu-service",
             "menu": response.json()

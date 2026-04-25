@@ -1,0 +1,137 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f7f2ec;
+  color: #2d2d2d;
+}
+
+.hero {
+  background: linear-gradient(135deg, #8b1e1e, #c0392b);
+  color: white;
+  padding: 50px 10%;
+}
+
+.subtitle {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+h1 {
+  font-size: 48px;
+  margin: 10px 0;
+}
+
+.description {
+  max-width: 700px;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 30px auto;
+}
+
+.section {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin: 0;
+  color: #8b1e1e;
+}
+
+button {
+  background: #8b1e1e;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #641414;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.category-card {
+  border: 1px solid #eee;
+  border-radius: 14px;
+  padding: 18px;
+  background: #fffaf5;
+}
+
+.category-card h3 {
+  margin-top: 0;
+  color: #c0392b;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dashed #ddd;
+  padding: 8px 0;
+  gap: 10px;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.orders {
+  display: grid;
+  gap: 15px;
+}
+
+.order-card {
+  background: #fffaf5;
+  border-left: 5px solid #8b1e1e;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.order-card p {
+  margin: 6px 0;
+}
+
+pre {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 18px;
+  border-radius: 12px;
+  overflow-x: auto;
+}
