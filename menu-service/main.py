@@ -7,12 +7,9 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 app = FastAPI(title="Italian Restaurant Menu Service")
 
-DATABASE_URL = "sqlite:///./menu.db"
+DATABASE_URL = "postgresql://restaurant_user:restaurant_password@postgres-service:5432/restaurant_db"
 
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False}
-)
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(
     autocommit=False,
@@ -101,7 +98,7 @@ def home():
     return {
         "message": "Italian Restaurant Menu Service is running",
         "restaurant": "Bella Italia",
-        "database": "SQLite"
+        "database": "PostgreSQL"
     }
 
 
