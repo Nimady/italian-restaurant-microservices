@@ -3,45 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bella Italia - Restaurant</title>
+  <title>Bella Italia</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="hero">
-    <div>
-      <p class="subtitle">Restaurant italien</p>
-      <h1>Bella Italia</h1>
-      <p class="description">
-        Découvrez notre menu italien et passez votre commande en quelques secondes.
-        </p>
+    <p class="subtitle">Restaurant italien</p>
+    <h1>Bella Italia</h1>
+    <p class="description">
+      Découvrez notre menu italien et passez votre commande en quelques secondes.
+    </p>
+
+    <div class="nav-buttons">
+      <button onclick="showSection('menuSection')">Voir le menu</button>
+      <button onclick="showSection('ordersSection')">Voir les commandes</button>
+      <button onclick="showSection('createOrderSection')">Créer une commande</button>
     </div>
   </header>
 
   <main class="container">
-    <section class="section">
+    <section id="menuSection" class="section">
       <div class="section-header">
         <h2>Menu du restaurant</h2>
-        <button onclick="loadMenu()">Actualiser le menu</button>
+        <button onclick="loadMenu()">Actualiser</button>
       </div>
       <div id="menu" class="grid"></div>
     </section>
 
-    <section class="section">
+    <section id="createOrderSection" class="section hidden">
       <div class="section-header">
         <h2>Créer une commande</h2>
       </div>
 
-    <form id="orderForm" class="form">
+      <form id="orderForm" class="form">
         <input type="number" id="customerNumber" placeholder="Numéro client" required />
-        <input type="text" id="items" placeholder="Ex: Pizza Margherita, Tiramisu" required />
+        <input type="text" id="items" placeholder="Ex: Pizza Regina, Tiramisu" required />
         <button type="submit">Créer la commande</button>
-    </form>
+      </form>
+
+      <p class="help">
+        Le total est calculé automatiquement à partir des prix du menu.
+      </p>
     </section>
 
-    <section class="section">
+    <section id="ordersSection" class="section hidden">
       <div class="section-header">
         <h2>Commandes</h2>
-        <button onclick="loadOrders()">Actualiser les commandes</button>
+        <button onclick="loadOrders()">Actualiser</button>
       </div>
       <div id="orders" class="orders"></div>
     </section>

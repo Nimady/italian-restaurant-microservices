@@ -135,3 +135,20 @@ pre {
   border-radius: 12px;
   overflow-x: auto;
 }
+
+.nav-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+}
+
+.hidden {
+  display: none;
+}
+
+.help {
+  margin-top: 12px;
+  color: #666;
+  font-size: 14px;
+}

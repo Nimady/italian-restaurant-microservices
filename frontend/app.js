@@ -1,3 +1,22 @@
+
+function showSection(sectionId) {
+  const sections = ["menuSection", "ordersSection", "createOrderSection"];
+
+  sections.forEach((id) => {
+    document.getElementById(id).classList.add("hidden");
+  });
+
+  document.getElementById(sectionId).classList.remove("hidden");
+
+  if (sectionId === "menuSection") {
+    loadMenu();
+  }
+
+  if (sectionId === "ordersSection") {
+    loadOrders();
+  }
+}
+
 async function loadMenu() {
   const menuContainer = document.getElementById("menu");
   menuContainer.innerHTML = "Chargement du menu...";
